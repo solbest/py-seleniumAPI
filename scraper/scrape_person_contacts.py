@@ -1,5 +1,5 @@
 import os
-from linkedin_scraper import Person, actions
+from api import Person, actions
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 

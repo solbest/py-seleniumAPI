@@ -1,274 +1,81 @@
-# Linkedin Scraper
+# Selenium to Web-Scraper
+<p align="center"><img src="https://user-images.githubusercontent.com/136579135/260284717-b51713b5-b881-4f5d-9c38-06f12870a424.jpg" alt="solbest" /></p>
+Selenium is a Python library and tool used for automating web browsers to do a number of tasks. One of such is web-scraping to extract useful data and information that may be otherwise unavailable. I made this API for 6 years. 
+Web scraping based on Web structure. This can use for LinkedIn personal or company data scraping.
 
-Scrapes Linkedin User Data
-
-[Linkedin Scraper](#linkedin-scraper)
-* [Installation](#installation)
-* [Setup](#setup)
-* [Usage](#usage)
-  + [Sample Usage](#sample-usage)
-  + [User Scraping](#user-scraping)
-  + [Company Scraping](#company-scraping)
-  + [Job Scraping](#job-scraping)
-  + [Job Search Scraping](#job-search-scraping)
-  + [Scraping sites where login is required first](#scraping-sites-where-login-is-required-first)
-  + [Scraping sites and login automatically](#scraping-sites-and-login-automatically)
-* [API](#api)
-  + [Person](#person)
-    - [`linkedin_url`](#linkedin_url)
-    - [`name`](#name)
-    - [`about`](#about)
-    - [`experiences`](#experiences)
-    - [`educations`](#educations)
-    - [`interests`](#interests)
-    - [`accomplishment`](#accomplishment)
-    - [`company`](#company)
-    - [`job_title`](#job_title)
-    - [`driver`](#driver)
-    - [`scrape`](#scrape)
-    - [`scrape(close_on_complete=True)`](#scrapeclose_on_completetrue)
-  + [Company](#company)
-    - [`linkedin_url`](#linkedin_url-1)
-    - [`name`](#name-1)
-    - [`about_us`](#about_us)
-    - [`website`](#website)
-    - [`headquarters`](#headquarters)
-    - [`founded`](#founded)
-    - [`company_type`](#company_type)
-    - [`company_size`](#company_size)
-    - [`specialties`](#specialties)
-    - [`showcase_pages`](#showcase_pages)
-    - [`affiliated_companies`](#affiliated_companies)
-    - [`driver`](#driver-1)
-    - [`get_employees`](#get_employees)
-    - [`scrape(close_on_complete=True)`](#scrapeclose_on_completetrue-1)
-* [Contribution](#contribution)
-
-## Installation
-
+## Install and Imports
 ```bash
-pip3 install --user linkedin_scraper
+pip install -r requirements.txt
+
 ```
-
-Version **2.0.0** and before is called `linkedin_user_scraper` and can be installed via `pip3 install --user linkedin_user_scraper`
-
-## Setup
-First, you must set your chromedriver location by
-
-```bash
-export CHROMEDRIVER=~/chromedriver
-```
-
-## Usage
-To use it, just create the class.
-
-### Sample Usage
+Once installed, you’re ready for the imports.
 ```python
-from linkedin_scraper import Person, actions
+import os
+from api import Person, actions
 from selenium import webdriver
-driver = webdriver.Chrome()
+driver = webdriver.Chrome("./chromedriver")
 
-email = "some-email@email.address"
-password = "password123"
-actions.login(driver, email, password) # if email and password isnt given, it'll prompt in terminal
-person = Person("https://www.linkedin.com/in/joey-sham-aa2a50122", driver=driver)
-```
-
-**NOTE**: The account used to log-in should have it's language set English to make sure everything works as expected.
-
-### User Scraping
-```python
-from linkedin_scraper import Person
-person = Person("https://www.linkedin.com/in/andre-iguodala-65b48ab5")
-```
-
-### Company Scraping
-```python
-from linkedin_scraper import Company
-company = Company("https://ca.linkedin.com/company/google")
-```
-
-### Job Scraping
-```python
-from linkedin_scraper import JobSearch, actions
-from selenium import webdriver
-
-driver = webdriver.Chrome()
-email = "some-email@email.address"
-password = "password123"
-actions.login(driver, email, password) # if email and password isnt given, it'll prompt in terminal
-input("Press Enter")
-job = Job("https://www.linkedin.com/jobs/collections/recommended/?currentJobId=3456898261", driver=driver, close_on_complete=False)
-```
-
-### Job Search Scraping
-```python
-from linkedin_scraper import JobSearch, actions
-from selenium import webdriver
-
-driver = webdriver.Chrome()
-email = "some-email@email.address"
-password = "password123"
-actions.login(driver, email, password) # if email and password isnt given, it'll prompt in terminal
-input("Press Enter")
-job_search = JobSearch(driver=driver, close_on_complete=False, scrape=False)
-# job_search contains jobs from your logged in front page:
-# - job_search.recommended_jobs
-# - job_search.still_hiring
-# - job_search.more_jobs
-
-job_listings = job_search.search("Machine Learning Engineer") # returns the list of `Job` from the first page
-```
-
-### Scraping sites where login is required first
-1. Run `ipython` or `python`
-2. In `ipython`/`python`, run the following code (you can modify it if you need to specify your driver)
-3. 
-```python
-from linkedin_scraper import Person
-from selenium import webdriver
-driver = webdriver.Chrome()
-person = Person("https://www.linkedin.com/in/andre-iguodala-65b48ab5", driver = driver, scrape=False)
-```
-4. Login to Linkedin
-5. [OPTIONAL] Logout of Linkedin
-6. In the same `ipython`/`python` code, run
-```python
-person.scrape()
-```
-
-The reason is that LinkedIn has recently blocked people from viewing certain profiles without having previously signed in. So by setting `scrape=False`, it doesn't automatically scrape the profile, but Chrome will open the linkedin page anyways. You can login and logout, and the cookie will stay in the browser and it won't affect your profile views. Then when you run `person.scrape()`, it'll scrape and close the browser. If you want to keep the browser on so you can scrape others, run it as 
-
-**NOTE**: For version >= `2.1.0`, scraping can also occur while logged in. Beware that users will be able to see that you viewed their profile.
-
-```python
-person.scrape(close_on_complete=False)
-``` 
-so it doesn't close.
-
-### Scraping sites and login automatically
-From verison **2.4.0** on, `actions` is a part of the library that allows signing into Linkedin first. The email and password can be provided as a variable into the function. If not provided, both will be prompted in terminal.
-
-```python
-from linkedin_scraper import Person, actions
-from selenium import webdriver
-driver = webdriver.Chrome()
-email = "some-email@email.address"
-password = "password123"
+email = os.getenv("LINKEDIN_USER")
+password = os.getenv("LINKEDIN_PASSWORD")
 actions.login(driver, email, password) # if email and password isnt given, it'll prompt in terminal
 person = Person("https://www.linkedin.com/in/andre-iguodala-65b48ab5", driver=driver)
+
 ```
+## LinkenIn Scraping with selenium API
 
-
-## API
-
-### Person
-A Person object can be created with the following inputs:
-
+Once that’s done, we’ll start the actual web scraping process. Let’s declare a function so we can use our web scraping code to fetch posts from multiple accounts in recursion. We’ll call it Scrape_func.
 ```python
-Person(linkedin_url=None, name=None, about=[], experiences=[], educations=[], interests=[], accomplishments=[], company=None, job_title=None, driver=None, scrape=True)
-```
-#### `linkedin_url`
-This is the linkedin url of their profile
+def Scrape_func(a,b,c):
+    name = a[28:-1]
+    page = a
+    time.sleep(10)
 
-#### `name`
-This is the name of the person
+    driver.get(page + 'detail/recent-activity/shares/')  
+    start=time.time()
+    lastHeight = driver.execute_script("return document.body.scrollHeight")
+    while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(5)
+        newHeight = driver.execute_script("return document.body.scrollHeight")
+        if newHeight == lastHeight:
+            break
+        lastHeight = newHeight
+        end=time.time()
+        if round(end-start)>20:
+            break
 
-#### `about`
-This is the small paragraph about the person
+    company_page = driver.page_source   
 
-#### `experiences`
-This is the past experiences they have. A list of `linkedin_scraper.scraper.Experience`
+    linkedin_soup = bs(company_page.encode("utf-8"), "html")
+    linkedin_soup.prettify()
+    containers = linkedin_soup.findAll("div",{"class":"occludable-update ember-view"})
+    print("Fetching data from account: "+ name)
+    iterations = 0
+    nos = int(input("Enter number of posts: "))
+    for container in containers:
 
-#### `educations`
-This is the past educations they have. A list of `linkedin_scraper.scraper.Education`
+        try:
+            text_box = container.find("div",{"class":"feed-shared-update-v2__description-wrapper ember-view"})
+            text = text_box.find("span",{"dir":"ltr"})
+            b.append(text.text.strip())
+            c.append(name)
+            iterations += 1
+            print(iterations)
+            
+            if(iterations==nos):
+                break
 
-#### `interests`
-This is the interests they have. A list of `linkedin_scraper.scraper.Interest`
+        except:
+            pass 
 
-#### `accomplishment`
-This is the accomplishments they have. A list of `linkedin_scraper.scraper.Accomplishment`
+n = int(input("Enter the number of entries: "))
+for i in range(n):
+    post_links.append(input("Enter the link: "))
+for j in range(n):
+    Scrape_func(post_links[j],post_texts,post_names)
 
-#### `company`
-This the most recent company or institution they have worked at. 
-
-#### `job_title`
-This the most recent job title they have. 
-
-#### `driver`
-This is the driver from which to scraper the Linkedin profile. A driver using Chrome is created by default. However, if a driver is passed in, that will be used instead.
-
-For example
-```python
-driver = webdriver.Chrome()
-person = Person("https://www.linkedin.com/in/andre-iguodala-65b48ab5", driver = driver)
-```
-
-#### `scrape`
-When this is **True**, the scraping happens automatically. To scrape afterwards, that can be run by the `scrape()` function from the `Person` object.
-
-
-#### `scrape(close_on_complete=True)`
-This is the meat of the code, where execution of this function scrapes the profile. If *close_on_complete* is True (which it is by default), then the browser will close upon completion. If scraping of other profiles are desired, then you might want to set that to false so you can keep using the same driver.
-
- 
-
-
-### Company
-
-```python
-Company(linkedin_url=None, name=None, about_us=None, website=None, headquarters=None, founded=None, company_type=None, company_size=None, specialties=None, showcase_pages=[], affiliated_companies=[], driver=None, scrape=True, get_employees=True)
-```
-
-#### `linkedin_url`
-This is the linkedin url of their profile
-
-#### `name`
-This is the name of the company
-
-#### `about_us`
-The description of the company
-
-#### `website`
-The website of the company
-
-#### `headquarters`
-The headquarters location of the company
-
-#### `founded`
-When the company was founded
-
-#### `company_type`
-The type of the company
-
-#### `company_size`
-How many people are employeed at the company
-
-#### `specialties`
-What the company specializes in
-
-#### `showcase_pages`
-Pages that the company owns to showcase their products
-
-#### `affiliated_companies`
-Other companies that are affiliated with this one
-
-#### `driver`
-This is the driver from which to scraper the Linkedin profile. A driver using Chrome is created by default. However, if a driver is passed in, that will be used instead.
-
-#### `get_employees`
-Whether to get all the employees of company
-
-For example
-```python
-driver = webdriver.Chrome()
-company = Company("https://ca.linkedin.com/company/google", driver=driver)
+        
+driver.quit()
 ```
 
-
-#### `scrape(close_on_complete=True)`
-This is the meat of the code, where execution of this function scrapes the company. If *close_on_complete* is True (which it is by default), then the browser will close upon completion. If scraping of other companies are desired, then you might want to set that to false so you can keep using the same driver.
-
-## Contribution
-
-<a href="https://www.buymeacoffee.com/joeyism" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+<p align="center"><img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*0ffesBp0lJH6zXAI7r7fnA.jpeg" alt="solbest" /></p>
